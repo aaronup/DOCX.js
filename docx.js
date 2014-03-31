@@ -52,7 +52,8 @@ function convertContent(input) { 'use strict'; // Convert HTML to Wordprocessing
 						k = tempNode.childNodes.length;
 						while (k--) {
 							if (tempNode.childNodes[k].getAttribute('Id') === id) {
-								val = '<img src="data:image/png;base64,' + JSZipBase64.encode(input.files['word/' + tempNode.childNodes[k].getAttribute('Target')].asText()) + '">';
+                                debugger;
+								val = '<img src="data:image/png;base64,' + JSZip.base64.encode(input.files['word/' + tempNode.childNodes[k].getAttribute('Target')].asBinary()) + '">';
 								break;
 							}
 						}
