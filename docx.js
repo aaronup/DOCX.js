@@ -24,7 +24,7 @@ function convertContent(input) { 'use strict'; // Convert HTML to Wordprocessing
 	}
 	function toXML(str) { return new DOMParser().parseFromString(str.replace(/<[a-zA-Z]*?:/g, '<').replace(/<\/[a-zA-Z]*?:/g, '</'), 'text/xml').firstChild; }
 	if (input.files) { // input is file object
-		inputDoc = toXML(input.files['word/document.xml'].data).getElementsByTagName('body')[0]; output = newHTMLnode('DIV');
+		inputDoc = toXML(input.files['word/document.xml'].asText()).getElementsByTagName('body')[0]; output = newHTMLnode('DIV');
 		for (i = 0; inNode = inputDoc.childNodes[i]; i++) {
 			j = inNode.childNodes.length;
 			outNode = output.appendChild(newHTMLnode('P'));
@@ -48,11 +48,11 @@ function convertContent(input) { 'use strict'; // Convert HTML to Wordprocessing
 					if (styleAttrNode = inNodeChild.getElementsByTagName('color')[0]) { val = '<span style="color:#' + styleAttrNode.getAttribute('w:val') + '">' + val + '</span>'; }
 					if (styleAttrNode = inNodeChild.getElementsByTagName('blip')[0]) {
 						id = styleAttrNode.getAttribute('r:embed');
-						tempNode = toXML(input.files['word/_rels/document.xml.rels'].data);
+						tempNode = toXML(input.files['word/_rels/document.xml.rels'].asText());
 						k = tempNode.childNodes.length;
 						while (k--) {
 							if (tempNode.childNodes[k].getAttribute('Id') === id) {
-								val = '<img src="data:image/png;base64,' + JSZipBase64.encode(input.files['word/' + tempNode.childNodes[k].getAttribute('Target')].data) + '">';
+								val = '<img src="data:image/png;base64,' + JSZipBase64.encode(input.files['word/' + tempNode.childNodes[k].getAttribute('Target')].asText()) + '">';
 								break;
 							}
 						}
@@ -107,13 +107,15 @@ function docx(file) { 'use strict'; // v1.0.1
 	var result, zip = new JSZip(), zipTime, processTime, docProps, word, content;
 	
 	if (typeof file === 'string') { // Load
+	// if (file.constructor === ArrayBuffer) { // Load
 		zipTime = Date.now();
 		zip = zip.load(file, { base64: true });
 		result = { zipTime: Date.now() - zipTime };
 		processTime = Date.now();
 		
 		//{ Get file info from "docProps/core.xml"
-			s = zip.files['docProps/core.xml'].data;
+			// s = zip.files['docProps/core.xml'].data;
+			var s = zip.files['docProps/core.xml'].asText();
 			s = s.substr(s.indexOf('<dc:creator>') + 12);
 			result.creator = s.substring(0, s.indexOf('</dc:creator>'));
 			s = s.substr(s.indexOf('<cp:lastModifiedBy>') + 19);
