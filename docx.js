@@ -51,7 +51,8 @@ function convertContent(input) { 'use strict'; // Convert HTML to Wordprocessing
 						tempNode = toXML(input.files['word/_rels/document.xml.rels'].asText());
 						k = tempNode.childNodes.length;
 						while (k--) {
-							if (tempNode.childNodes[k].getAttribute('Id') === id) {
+							if (tempNode.childNodes[k].getAttribute &&
+                                tempNode.childNodes[k].getAttribute('Id') === id) {
                                 debugger;
 								val = '<img src="data:image/png;base64,' + JSZip.base64.encode(input.files['word/' + tempNode.childNodes[k].getAttribute('Target')].asBinary()) + '">';
 								break;
