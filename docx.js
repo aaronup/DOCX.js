@@ -4,120 +4,152 @@
 // https://raw.github.com/stephen-hardy/docx.js/master/LICENSE.txt
 //----------------------------------------------------------
 
-function convertContent(input) { 'use strict'; // Convert HTML to WordprocessingML, and vice versa
-	var output, inputDoc, i, j, k, id, doc, inNode, inNodeChild, outNode, outNodeChild, styleAttrNode, pCount = 0, tempStr, tempNode, val;
-	function newXMLnode(name, text) {
-		var el = doc.createElement('w:' + name);
-		if (text) { el.appendChild(doc.createTextNode(text)); }
-		return el;
-	}
-	function newHTMLnode(name, html) {
-		var el = document.createElement(name);
-		el.innerHTML = html || '';
-		return el;
-	}
-	function color(str) { // Return hex or named color
-		if (str.charAt(0) === '#') { return str.substr(1); }
-		if (str.indexOf('rgb') < 0) { return str; }
-		var values = /rgb\((\d+), (\d+), (\d+)\)/.exec(str), red = +values[1], green = +values[2], blue = +values[3];
-		return (blue | (green << 8) | (red << 16)).toString(16);
-	}
-	function toXML(str) { return new DOMParser().parseFromString(str.replace(/<[a-zA-Z]*?:/g, '<').replace(/<\/[a-zA-Z]*?:/g, '</'), 'text/xml').firstChild; }
-	if (input.files) { // input is file object
-		inputDoc = toXML(input.files['word/document.xml'].asText()).getElementsByTagName('body')[0]; output = newHTMLnode('DIV');
-		for (i = 0; inNode = inputDoc.childNodes[i]; i++) {
-			j = inNode.childNodes.length;
-			outNode = output.appendChild(newHTMLnode('P'));
-			tempStr = '';
-			for (j = 0; inNodeChild = inNode.childNodes[j]; j++) {
-				if (inNodeChild.nodeName === 'pPr') {
-					if (styleAttrNode = inNodeChild.getElementsByTagName('jc')[0]) { outNode.style.textAlign = styleAttrNode.getAttribute('w:val'); }
-				}
-				if (inNodeChild.nodeName === 'r') {
-					val = inNodeChild.textContent;
-					if (inNodeChild.getElementsByTagName('b').length) { val = '<b>' + val + '</b>'; }
-					if (inNodeChild.getElementsByTagName('i').length) { val = '<i>' + val + '</i>'; }
-					if (inNodeChild.getElementsByTagName('u').length) { val = '<u>' + val + '</u>'; }
-					if (inNodeChild.getElementsByTagName('strike').length) { val = '<s>' + val + '</s>'; }
-					if (styleAttrNode = inNodeChild.getElementsByTagName('vertAlign')[0]) {
-						if (styleAttrNode.getAttribute('w:val') === 'subscript') { val = '<sub>' + val + '</sub>'; }
-						if (styleAttrNode.getAttribute('w:val') === 'superscript') { val = '<sup>' + val + '</sup>'; }
+var docx = {
+	convertContent: function(input) { // Convert HTML to WordprocessingML, and vice versa
+		'use strict';
+		var output,
+			inputDoc,
+			i,
+			j,
+			k,
+			id,
+			doc,
+			inNode,
+			inNodeChild,
+			outNode,
+			outNodeChild,
+			styleAttrNode,
+			pCount = 0,
+			tempStr,
+			tempNode,
+			val;
+
+		function newXMLnode(name, text) {
+			var el = doc.createElement('w:' + name);
+			if (text) { el.appendChild(doc.createTextNode(text)); }
+			return el;
+		}
+		function newHTMLnode(name, html) {
+			var el = document.createElement(name);
+			el.innerHTML = html || '';
+			return el;
+		}
+		function color(str) { // Return hex or named color
+			if (str.charAt(0) === '#') { return str.substr(1); }
+			if (str.indexOf('rgb') < 0) { return str; }
+			var values = /rgb\((\d+), (\d+), (\d+)\)/.exec(str),
+				red = +values[1],
+				green = +values[2],
+				blue = +values[3];
+
+			return (blue | (green << 8) | (red << 16)).toString(16);
+		}
+		function toXML(str) {return new DOMParser().parseFromString(str.replace(/<[a-zA-Z]*?:/g, '<').replace(/<\/[a-zA-Z]*?:/g, '</'), 'text/xml').firstChild; }
+		if (input.files) { // input is file object
+			inputDoc = toXML(input.files['word/document.xml'].asText()).getElementsByTagName('body')[0];
+			output = newHTMLnode('DIV');
+			for (i = 0; inNode = inputDoc.childNodes[i]; i++) {
+				j = inNode.childNodes.length;
+				outNode = output.appendChild(newHTMLnode('P'));
+				tempStr = '';
+				for (j = 0; inNodeChild = inNode.childNodes[j]; j++) {
+					if (inNodeChild.nodeName === 'pPr') {
+						if (styleAttrNode = inNodeChild.getElementsByTagName('jc')[0]) { outNode.style.textAlign = styleAttrNode.getAttribute('w:val'); }
 					}
-					if (styleAttrNode = inNodeChild.getElementsByTagName('sz')[0]) { val = '<span style="font-size:' + (styleAttrNode.getAttribute('w:val') / 2) + 'pt">' + val + '</span>'; }
-					if (styleAttrNode = inNodeChild.getElementsByTagName('highlight')[0]) { val = '<span style="background-color:' + styleAttrNode.getAttribute('w:val') + '">' + val + '</span>'; }
-					if (styleAttrNode = inNodeChild.getElementsByTagName('color')[0]) { val = '<span style="color:#' + styleAttrNode.getAttribute('w:val') + '">' + val + '</span>'; }
-					if (styleAttrNode = inNodeChild.getElementsByTagName('blip')[0]) {
-						id = styleAttrNode.getAttribute('r:embed');
-						tempNode = toXML(input.files['word/_rels/document.xml.rels'].asText());
-						k = tempNode.childNodes.length;
-						while (k--) {
-							if (tempNode.childNodes[k].getAttribute &&
-                                tempNode.childNodes[k].getAttribute('Id') === id) {
-                                debugger;
-								val = '<img src="data:image/png;base64,' + JSZip.base64.encode(input.files['word/' + tempNode.childNodes[k].getAttribute('Target')].asBinary()) + '">';
-								break;
+					if (inNodeChild.nodeName === 'r') {
+						val = inNodeChild.textContent;
+						if (inNodeChild.getElementsByTagName('b').length) { val = '<b>' + val + '</b>'; }
+						if (inNodeChild.getElementsByTagName('i').length) { val = '<i>' + val + '</i>'; }
+						if (inNodeChild.getElementsByTagName('u').length) { val = '<u>' + val + '</u>'; }
+						if (inNodeChild.getElementsByTagName('strike').length) { val = '<s>' + val + '</s>'; }
+						if (styleAttrNode = inNodeChild.getElementsByTagName('vertAlign')[0]) {
+							if (styleAttrNode.getAttribute('w:val') === 'subscript') { val = '<sub>' + val + '</sub>'; }
+							if (styleAttrNode.getAttribute('w:val') === 'superscript') { val = '<sup>' + val + '</sup>'; }
+						}
+						if (styleAttrNode = inNodeChild.getElementsByTagName('sz')[0]) { val = '<span style="font-size:' + (styleAttrNode.getAttribute('w:val') / 2) + 'pt">' + val + '</span>'; }
+						if (styleAttrNode = inNodeChild.getElementsByTagName('highlight')[0]) { val = '<span style="background-color:' + styleAttrNode.getAttribute('w:val') + '">' + val + '</span>'; }
+						if (styleAttrNode = inNodeChild.getElementsByTagName('color')[0]) { val = '<span style="color:#' + styleAttrNode.getAttribute('w:val') + '">' + val + '</span>'; }
+						if (styleAttrNode = inNodeChild.getElementsByTagName('blip')[0]) {
+							id = styleAttrNode.getAttribute('r:embed');
+							tempNode = toXML(input.files['word/_rels/document.xml.rels'].asText());
+							k = tempNode.childNodes.length;
+							while (k--) {
+								if (tempNode.childNodes[k].getAttribute && tempNode.childNodes[k].getAttribute('Id') === id) {
+									val = '<img src="data:image/png;base64,' + JSZipbase64.encode(input.files['word/' + tempNode.childNodes[k].getAttribute('Target')].data) + '">';
+									break;
+								}
 							}
 						}
+						tempStr += val;
 					}
-					tempStr += val;
+					outNode.innerHTML = tempStr;
 				}
-				outNode.innerHTML = tempStr;
 			}
+			output = output;
 		}
-		output = output.childNodes;
-	}
-	else if (input.nodeName) { // input is HTML DOM
-		doc = new DOMParser().parseFromString('<root></root>', 'text/xml')
-		doc.getElementsByTagName('root')[0].appendChild(newXMLnode('body'));
-		output = doc.getElementsByTagName('w:body')[0];
-		for (i = 0; inNode = input.childNodes[i]; i++) {
-			outNode = output.appendChild(newXMLnode('p'));
-			pCount++;
-			if (inNode.style.textAlign) { outNode.appendChild(newXMLnode('pPr')).appendChild(newXMLnode('jc')).setAttribute('val', inNode.style.textAlign); }
-			if (inNode.nodeName === '#text') { outNode.appendChild(newXMLnode('r')).appendChild(newXMLnode('t', inNode.nodeValue)); }
-			else {
-				for (j = 0; inNodeChild = inNode.childNodes[j]; j++) {
-					outNodeChild = outNode.appendChild(newXMLnode('r'));
-					if (inNodeChild.nodeName !== '#text') {
-						styleAttrNode = outNodeChild.appendChild(newXMLnode('rPr'));
-						tempStr = inNodeChild.outerHTML;
-						if (tempStr.indexOf('<b>') > -1) { styleAttrNode.appendChild(newXMLnode('b')); }
-						if (tempStr.indexOf('<i>') > -1) { styleAttrNode.appendChild(newXMLnode('i')); }
-						if (tempStr.indexOf('<u>') > -1) { styleAttrNode.appendChild(newXMLnode('u')).setAttribute('val', 'single'); }
-						if (tempStr.indexOf('<s>') > -1) { styleAttrNode.appendChild(newXMLnode('strike')); }
-						if (tempStr.indexOf('<sub>') > -1) { styleAttrNode.appendChild(newXMLnode('vertAlign')).setAttribute('val', 'subscript'); }
-						if (tempStr.indexOf('<sup>') > -1) { styleAttrNode.appendChild(newXMLnode('vertAlign')).setAttribute('val', 'superscript'); }
-						if (tempNode = inNodeChild.nodeName === 'SPAN' ? inNodeChild : inNodeChild.getElementsByTagName('SPAN')[0]) { 
-							if (tempNode.style.fontSize) { styleAttrNode.appendChild(newXMLnode('sz')).setAttribute('val', parseInt(tempNode.style.fontSize, 10) * 2); }
-							else if (tempNode.style.backgroundColor) { styleAttrNode.appendChild(newXMLnode('highlight')).setAttribute('val', color(tempNode.style.backgroundColor)); }
-							else if (tempNode.style.color) { styleAttrNode.appendChild(newXMLnode('color')).setAttribute('val', color(tempNode.style.color)); }
+		else if (input.nodeName) { // input is HTML DOM
+			doc = new DOMParser().parseFromString('<root></root>', 'text/xml');
+			doc.getElementsByTagName('root')[0].appendChild(newXMLnode('body'));
+			output = doc.getElementsByTagName('w:body')[0];
+			for (i = 0; inNode = input.childNodes[i]; i++) {
+				outNode = output.appendChild(newXMLnode('p'));
+				pCount++;
+				if (inNode.style && inNode.style.textAlign) { outNode.appendChild(newXMLnode('pPr')).appendChild(newXMLnode('jc')).setAttribute('val', inNode.style.textAlign); }
+				if (inNode.nodeName === '#text') { outNode.appendChild(newXMLnode('r')).appendChild(newXMLnode('t', inNode.nodeValue)); }
+				else {
+					for (j = 0; inNodeChild = inNode.childNodes[j]; j++) {
+						outNodeChild = outNode.appendChild(newXMLnode('r'));
+						if (inNodeChild.nodeName !== '#text') {
+							styleAttrNode = outNodeChild.appendChild(newXMLnode('rPr'));
+							tempStr = inNodeChild.outerHTML;
+							if (tempStr.indexOf('<b>') > -1) { styleAttrNode.appendChild(newXMLnode('b')); }
+							if (tempStr.indexOf('<i>') > -1) { styleAttrNode.appendChild(newXMLnode('i')); }
+							if (tempStr.indexOf('<u>') > -1) { styleAttrNode.appendChild(newXMLnode('u')).setAttribute('val', 'single'); }
+							if (tempStr.indexOf('<s>') > -1) { styleAttrNode.appendChild(newXMLnode('strike')); }
+							if (tempStr.indexOf('<sub>') > -1) { styleAttrNode.appendChild(newXMLnode('vertAlign')).setAttribute('val', 'subscript'); }
+							if (tempStr.indexOf('<sup>') > -1) { styleAttrNode.appendChild(newXMLnode('vertAlign')).setAttribute('val', 'superscript'); }
+							if (tempNode = inNodeChild.nodeName === 'SPAN' ? inNodeChild : inNodeChild.getElementsByTagName('SPAN')[0]) { 
+								if (tempNode.style.fontSize) { styleAttrNode.appendChild(newXMLnode('sz')).setAttribute('val', parseInt(tempNode.style.fontSize, 10) * 2); }
+								else if (tempNode.style.backgroundColor) { styleAttrNode.appendChild(newXMLnode('highlight')).setAttribute('val', color(tempNode.style.backgroundColor)); }
+								else if (tempNode.style.color) { styleAttrNode.appendChild(newXMLnode('color')).setAttribute('val', color(tempNode.style.color)); }
+							}
 						}
+						outNodeChild.appendChild(newXMLnode('t', inNodeChild.textContent));
 					}
-					outNodeChild.appendChild(newXMLnode('t', inNodeChild.textContent));
 				}
 			}
+			output = { 
+				string:			new XMLSerializer().serializeToString(output).replace(/<w:t>/g, '<w:t xml:space="preserve">').replace(/val=/g, 'w:val='), 
+				charSpaceCount:	input.textContent.length,
+				charCount:		input.textContent.replace(/\s/g, '').length,
+				pCount:			pCount
+			};
 		}
-		output = { 
-			string: new XMLSerializer().serializeToString(output).replace(/<w:t>/g, '<w:t xml:space="preserve">').replace(/val=/g, 'w:val='), 
-			charSpaceCount: input.textContent.length, charCount: input.textContent.replace(/\s/g, '').length, pCount: pCount
-		};
-	}
-	return output;
-}
+		return output;
+	},
 
-function docx(file) { 'use strict'; // v1.0.1
-	var result, zip = new JSZip(), zipTime, processTime, docProps, word, content;
-	
-	if (typeof file === 'string') { // Load
-	// if (file.constructor === ArrayBuffer) { // Load
-		zipTime = Date.now();
-		zip = zip.load(file, { base64: true });
-		result = { zipTime: Date.now() - zipTime };
+	read: function(file) { // v1.0.1
+		'use strict';
+		var result = {},
+			zip = new JSZip(),
+			zipTime = Date.now(),
+			processTime,
+			s;
+
+		try {
+			zip = zip.load(file);
+		} catch(e) {
+			return {error: "Invalid File Type"};
+		}
+		result.zipTime = Date.now() - zipTime;
 		processTime = Date.now();
 		
 		//{ Get file info from "docProps/core.xml"
-			// s = zip.files['docProps/core.xml'].data;
-			var s = zip.files['docProps/core.xml'].asText();
+			if (zip.files['docProps/core.xml']) {
+				s = zip.files['docProps/core.xml'].asText();
+			} else {
+				return {error: "Invalid File Type"};
+			}
 			s = s.substr(s.indexOf('<dc:creator>') + 12);
 			result.creator = s.substring(0, s.indexOf('</dc:creator>'));
 			s = s.substr(s.indexOf('<cp:lastModifiedBy>') + 19);
@@ -127,13 +159,23 @@ function docx(file) { 'use strict'; // v1.0.1
 			s = s.substr(s.indexOf('<dcterms:modified xsi:type="dcterms:W3CDTF">') + 44);
 			result.modified = new Date(s.substring(0, s.indexOf('</dcterms:modified>')));
 		//}
-		result.DOM = convertContent(zip);
+		result.DOM = this.convertContent(zip);
 		result.processTime = Date.now() - processTime;
-	}
-	else { // Save
-		content = convertContent(file.DOM);
-		processTime = Date.now();
-		sharedStrings = [[], 0];
+		return result;
+	},
+
+	export: function(DOM, options) {
+		'use strict';
+		var result,
+			zip = new JSZip(),
+			zipTime,
+			processTime = Date.now(),
+			docProps,
+			word,
+			content = this.convertContent(DOM),
+			sharedStrings = [[], 0],
+			file = options || {};
+
 		//{ Fully static
 			zip.file('[Content_Types].xml', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/><Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/><Override PartName="/word/stylesWithEffects.xml" ContentType="application/vnd.ms-word.stylesWithEffects+xml"/><Override PartName="/word/settings.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.settings+xml"/><Override PartName="/word/webSettings.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.webSettings+xml"/><Override PartName="/word/fontTable.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.fontTable+xml"/><Override PartName="/word/theme/theme1.xml" ContentType="application/vnd.openxmlformats-officedocument.theme+xml"/><Override PartName="/docProps/core.xml" ContentType="application/vnd.openxmlformats-package.core-properties+xml"/><Override PartName="/docProps/app.xml" ContentType="application/vnd.openxmlformats-officedocument.extended-properties+xml"/></Types>');
 			zip.folder('_rels').file('.rels', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/extended-properties" Target="docProps/app.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties" Target="docProps/core.xml"/><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>');
@@ -150,27 +192,44 @@ function docx(file) { 'use strict'; // v1.0.1
 			word.file('webSettings.xml', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:webSettings xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:w14="http://schemas.microsoft.com/office/word/2010/wordml" mc:Ignorable="w14"><w:optimizeForBrowser/><w:allowPNG/></w:webSettings>');
 		//}
 		//{ Not content dependent
-			docProps.file('core.xml', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:dcmitype="http://purl.org/dc/dcmitype/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><dc:creator>'
-				+ (file.creator || 'DOCX.js') + '</dc:creator><cp:lastModifiedBy>' + (file.lastModifiedBy || 'XLSX.js') + '</cp:lastModifiedBy><cp:revision>1</cp:revision><dcterms:created xsi:type="dcterms:W3CDTF">'
-				+ (file.created || new Date()).toISOString() + '</dcterms:created><dcterms:modified xsi:type="dcterms:W3CDTF">' + (file.modified || new Date()).toISOString() + '</dcterms:modified></cp:coreProperties>');
+			docProps.file('core.xml', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:dcmitype="http://purl.org/dc/dcmitype/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><dc:creator>' +
+				(file.creator || 'DOCX.js') + '</dc:creator><cp:lastModifiedBy>' + (file.lastModifiedBy || 'XLSX.js') + '</cp:lastModifiedBy><cp:revision>1</cp:revision><dcterms:created xsi:type="dcterms:W3CDTF">' +
+				(file.created || new Date()).toISOString() + '</dcterms:created><dcterms:modified xsi:type="dcterms:W3CDTF">' + (file.modified || new Date()).toISOString() + '</dcterms:modified></cp:coreProperties>');
 		//}
 		//{ Content dependent
 			//{ docProps/app.xml
-				docProps.file('app.xml', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/extended-properties" xmlns:vt="http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes"><Template>Normal.dotm</Template><TotalTime>1</TotalTime><Pages>1</Pages><Words>1</Words><Characters>'
-					+ content.charCount + '</Characters><Application>DOCX.js</Application><DocSecurity>0</DocSecurity><Lines>1</Lines><Paragraphs>'
-					+ content.pCount + '</Paragraphs><ScaleCrop>false</ScaleCrop><Company>Microsoft Corporation</Company><LinksUpToDate>false</LinksUpToDate><CharactersWithSpaces>'
-					+ content.charSpaceCount + '</CharactersWithSpaces><SharedDoc>false</SharedDoc><HyperlinksChanged>false</HyperlinksChanged><AppVersion>1.0</AppVersion></Properties>');
+				docProps.file('app.xml', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/extended-properties" xmlns:vt="http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes"><Template>Normal.dotm</Template><TotalTime>1</TotalTime><Pages>1</Pages><Words>1</Words><Characters>' +
+					content.charCount + '</Characters><Application>DOCX.js</Application><DocSecurity>0</DocSecurity><Lines>1</Lines><Paragraphs>' +
+					content.pCount + '</Paragraphs><ScaleCrop>false</ScaleCrop><Company>Microsoft Corporation</Company><LinksUpToDate>false</LinksUpToDate><CharactersWithSpaces>' +
+					content.charSpaceCount + '</CharactersWithSpaces><SharedDoc>false</SharedDoc><HyperlinksChanged>false</HyperlinksChanged><AppVersion>1.0</AppVersion></Properties>');
 			//}
 			
-			word.file('document.xml', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document xmlns:wpc="http://schemas.microsoft.com/office/word/2010/wordprocessingCanvas" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:wp14="http://schemas.microsoft.com/office/word/2010/wordprocessingDrawing" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" xmlns:w10="urn:schemas-microsoft-com:office:word" xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:w14="http://schemas.microsoft.com/office/word/2010/wordml" xmlns:wpg="http://schemas.microsoft.com/office/word/2010/wordprocessingGroup" xmlns:wpi="http://schemas.microsoft.com/office/word/2010/wordprocessingInk" xmlns:wne="http://schemas.microsoft.com/office/word/2006/wordml" xmlns:wps="http://schemas.microsoft.com/office/word/2010/wordprocessingShape" mc:Ignorable="w14 wp14"><w:body>'
-				+ content.string + '<w:sectPr w:rsidR="00F545DC" w:rsidRPr="00502205"><w:pgSz w:w="12240" w:h="15840"/><w:pgMar w:top="1440" w:right="1440" w:bottom="1440" w:left="1440" w:header="720" w:footer="720" w:gutter="0"/><w:cols w:space="720"/><w:docGrid w:linePitch="360"/></w:sectPr></w:body></w:document>');
+			word.file('document.xml', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document xmlns:wpc="http://schemas.microsoft.com/office/word/2010/wordprocessingCanvas" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:wp14="http://schemas.microsoft.com/office/word/2010/wordprocessingDrawing" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" xmlns:w10="urn:schemas-microsoft-com:office:word" xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:w14="http://schemas.microsoft.com/office/word/2010/wordml" xmlns:wpg="http://schemas.microsoft.com/office/word/2010/wordprocessingGroup" xmlns:wpi="http://schemas.microsoft.com/office/word/2010/wordprocessingInk" xmlns:wne="http://schemas.microsoft.com/office/word/2006/wordml" xmlns:wps="http://schemas.microsoft.com/office/word/2010/wordprocessingShape" mc:Ignorable="w14 wp14"><w:body>' +
+				content.string + '<w:sectPr w:rsidR="00F545DC" w:rsidRPr="00502205"><w:pgSz w:w="12240" w:h="15840"/><w:pgMar w:top="1440" w:right="1440" w:bottom="1440" w:left="1440" w:header="720" w:footer="720" w:gutter="0"/><w:cols w:space="720"/><w:docGrid w:linePitch="360"/></w:sectPr></w:body></w:document>');
 		//}
 		processTime = Date.now() - processTime;
 		zipTime = Date.now();
 		result = { 
-			base64: zip.generate({ compression: 'DEFLATE' }), zipTime: Date.now() - zipTime, processTime: processTime,
-			href: function() { return 'data:application/vnd.openxmlformats-officedocument.wordprocessingml.document;base64,' + this.base64; }
-		}
+			blob: zip.generate({
+				compression: 'DEFLATE',
+				type: 'blob'
+			}),
+			zipTime: Date.now() - zipTime,
+			processTime: processTime,
+			href: function() {
+				if (!this.blobURL) {
+					var createObjectURL = (window.URL || window.webkitURL || {}).createObjectURL;
+					this.blobURL = createObjectURL(this.blob);
+				}
+				return this.blobURL;
+				// return 'data:application/vnd.openxmlformats-officedocument.wordprocessingml.document;base64,' + this.blob;
+			},
+			revoke: function() {
+				var revokeObjectURL = (window.URL || window.webkitURL || {}).revokeObjectURL || function(){};
+				revokeObjectURL(this.blobURL);
+				this.blobURL = null;
+			}
+		};
+		return result;
 	}
-	return result;
-}
+};
