@@ -75,7 +75,7 @@ var docx = {
 							k = tempNode.childNodes.length;
 							while (k--) {
 								if (tempNode.childNodes[k].getAttribute && tempNode.childNodes[k].getAttribute('Id') === id) {
-									val = '<img src="data:image/png;base64,' + JSZipbase64.encode(input.files['word/' + tempNode.childNodes[k].getAttribute('Target')].data) + '">';
+									val = '<img src="data:image/png;base64,' + JSZipbase64.encode(input.files['word/' + tempNode.childNodes[k].getAttribute('Target')].asText()) + '">';
 									break;
 								}
 							}
@@ -173,7 +173,6 @@ var docx = {
 			docProps,
 			word,
 			content = this.convertContent(DOM),
-			sharedStrings = [[], 0],
 			file = options || {};
 
 		//{ Fully static
@@ -222,7 +221,6 @@ var docx = {
 					this.blobURL = createObjectURL(this.blob);
 				}
 				return this.blobURL;
-				// return 'data:application/vnd.openxmlformats-officedocument.wordprocessingml.document;base64,' + this.blob;
 			},
 			revoke: function() {
 				var revokeObjectURL = (window.URL || window.webkitURL || {}).revokeObjectURL || function(){};
