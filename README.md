@@ -5,10 +5,12 @@ DOCX.js is a JavaScript library for converting the data in base64 DOCX files int
 
 DOCX.js depends on [JSZip](https://github.com/Stuk/jszip)
 
-This fork is modified to accept binary ArrayBuffer .docx's, and output blob .docx's
+This fork is modified to accept binary `ArrayBuffer` .docx's, and output `blob` .docx's
 
 ###Create a .docx from a DOM element
+`docx.export(domEl, options)`
 
+Example:
 ```javascript
 var docDOM = document.getElementById('example');
 var docObject = docx.export(docDOM, // required DOM Object
@@ -29,7 +31,9 @@ Note `.href()` creates a `blobURL` that must be later revoked with `docObject.re
 
 
 ###Create a DOM Element from a .docx
+`docx.read(arrayBuffer)`
 
+Example:
 ```javascript
 document.getElementById('files').addEventListener('change', function(e){
 var reader = new FileReader();
