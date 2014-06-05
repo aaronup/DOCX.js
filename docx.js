@@ -59,7 +59,9 @@ var docx = {
 					if (inNodeChild.nodeName === 'r') {
 						val = inNodeChild.textContent;
 						if (inNodeChild.getElementsByTagName('b').length) { val = '<b>' + val + '</b>'; }
+						if (inNodeChild.getElementsByTagName('strong').length) { val = '<b>' + val + '</b>'; }
 						if (inNodeChild.getElementsByTagName('i').length) { val = '<i>' + val + '</i>'; }
+						if (inNodeChild.getElementsByTagName('em').length) { val = '<i>' + val + '</i>'; }
 						if (inNodeChild.getElementsByTagName('u').length) { val = '<u>' + val + '</u>'; }
 						if (inNodeChild.getElementsByTagName('strike').length) { val = '<s>' + val + '</s>'; }
 						if (styleAttrNode = inNodeChild.getElementsByTagName('vertAlign')[0]) {
@@ -103,7 +105,10 @@ var docx = {
 							styleAttrNode = outNodeChild.appendChild(newXMLnode('rPr'));
 							tempStr = inNodeChild.outerHTML;
 							if (tempStr.indexOf('<b>') > -1) { styleAttrNode.appendChild(newXMLnode('b')); }
+							if (tempStr.indexOf('<strong>') > -1) { styleAttrNode.appendChild(newXMLnode('b')); }
+							if (tempStr.indexOf('<em>') > -1) { styleAttrNode.appendChild(newXMLnode('i')); }
 							if (tempStr.indexOf('<i>') > -1) { styleAttrNode.appendChild(newXMLnode('i')); }
+							if (tempStr.indexOf('<span style="text-decoration: underline;"') > -1) { styleAttrNode.appendChild(newXMLnode('u')).setAttribute('val', 'single'); }
 							if (tempStr.indexOf('<u>') > -1) { styleAttrNode.appendChild(newXMLnode('u')).setAttribute('val', 'single'); }
 							if (tempStr.indexOf('<s>') > -1) { styleAttrNode.appendChild(newXMLnode('strike')); }
 							if (tempStr.indexOf('<sub>') > -1) { styleAttrNode.appendChild(newXMLnode('vertAlign')).setAttribute('val', 'subscript'); }
