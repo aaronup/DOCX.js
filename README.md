@@ -5,7 +5,7 @@ DOCX.js is a JavaScript library for converting the data in binary DOCX files int
 
 DOCX.js depends on [JSZip](https://github.com/Stuk/jszip)
 
-This fork is modified to accept binary `ArrayBuffer` .docx's, and output `blob` .docx's
+This fork is modified to accept binary `ArrayBuffer` .docx's, and output `blob` .docx's. It includes support headers, paragraphs, bold, italics, strikethrough, ordered and unordered lists, links (with titles too), inline code, code blocks, block quotes, and limited support for tables.
 
 ###Create a .docx from a DOM element
 `docx.export(domEl, options)`
@@ -27,7 +27,7 @@ link.download = "FilenameHere.docx";
 link.href = docObject.href();
 document.getElementById("example").appendChild(link);
 ```
-Note `.href()` creates a `blobURL` that must be later revoked with `docObject.revoke()` or it will stay in memory until the page changes/closes.
+Memory Leak Warning!  `.href()` creates a `blobURL` that must be later revoked with `docObject.revoke()` or it will stay in memory until the page changes/closes.  Browsers that do not support blobURL's should access the blob directly with `docObject.blob`
 
 
 ###Create a DOM Element from a .docx
