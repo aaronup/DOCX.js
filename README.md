@@ -5,10 +5,12 @@ DOCX.js is a JavaScript library for converting the data in binary DOCX files int
 
 DOCX.js depends on [JSZip](https://github.com/Stuk/jszip)
 
-This fork is modified to accept binary `ArrayBuffer` .docx's, and output `blob` .docx's. It includes support headers, paragraphs, bold, italics, strikethrough, ordered and unordered lists, links (with titles too), inline code, code blocks, block quotes, and limited support for tables.
+This fork is modified to accept binary `ArrayBuffer` .docx's, and output `blob` .docx's. It includes support for headers, paragraphs, bold, italics, strikethrough, ordered lists, links (with titles too), inline code, code blocks, block quotes, and limited support for tables.  Works well in combination with markdown, supporting much of what markdown supports.
 
 ###Create a .docx from a DOM element
 `docx.export(domEl, options)`
+
+[See an example in action](https://zerdah.github.io/DOCX.js/).  Click `Download .docx` at the top to download the page.
 
 Example:
 ```javascript
