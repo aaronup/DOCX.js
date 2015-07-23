@@ -7,6 +7,8 @@ DOCX.js depends on [JSZip](https://github.com/Stuk/jszip)
 
 This fork is modified to accept binary `ArrayBuffer` .docx's, and output `blob` .docx's. It includes support for headers, paragraphs, bold, italics, strikethrough, ordered lists, links (with titles too), inline code, code blocks, block quotes, and limited support for tables.  Works well in combination with markdown, supporting much of what markdown supports.
 
+This fork is not well tested across platforms.  It will not be receiving further updates.  I'll look at pull requests, but you should consider forking instead.
+
 ###Create a .docx from a DOM element
 `docx.export(domEl, options)`
 
