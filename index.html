@@ -1,0 +1,81 @@
+<!doctype html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="initial-scale=1">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<title>DOCX Example</title>
+	<script type="application/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jszip/2.5.0/jszip.min.js"></script>
+	<script type="application/javascript" src="docx.js"></script>
+	<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" media="screen, projection" rel="stylesheet" type="text/css">
+
+</head>
+
+<body>
+
+	<div class="markdown-body" id="example">
+		<h1>H1</h1>
+		<h2>H2</h2>
+		<h3>H3</h3>
+		<h4>H4</h4>
+		<h5>H5</h5>
+		<h6>H6</h6>
+		<h1>Alt-H1</h1>
+		<h2>Alt-H2</h2>
+		<p><em>italics with asterisks</em> or <em>underscores</em>.</p>
+		<p><strong>bold with double asterisks</strong> or <strong>underscores</strong>.</p>
+		<p><strong>combined with asterisks and <em>underscores</em></strong>.</p>
+		<p><del>Strikethrough uses two tildes</del></p>
+
+		<ol>
+			<li>First ordered list item</li>
+			<li>Another item
+				<ul>
+					<li>Unordered sub-list.</li>
+				</ul>
+			</li>
+			<li>Actual numbers don't matter, just that it's a number
+				<ol>
+					<li>Ordered sub-list</li>
+				</ol>
+			</li>
+			<li>And another item.</li>
+		</ol>
+		<p>To have a line break without a paragraph, use one return.<br>Note that this line is separate, but within the same paragraph.<br>(This is contrary to the typical Markdown line break behaviour, where trailing spaces are required.)</p>
+		<ul>
+			<li>Unordered list can use asterisks</li>
+			<li>Or minuses</li>
+			<li>Or pluses</li>
+		</ul>
+		<p>I'm an <a href="https://google.com">inline-style link</a>, woo!</p>
+		<p><a href="https://google.com" title="Google Homepage">I'm a link with a title</a></p>
+		<p>Inline <code>code</code> has <code>back-ticks around</code> it.</p>
+		<pre><code>// code block uses 3 backticks before and after
+var s = "Javascript";
+alert(s);</code></pre>
+		<blockquote>
+			<p>Blockquotes are very handy in email to emulate reply text.<br>This line is part of the same quote.</p>
+		</blockquote>
+		<p><a href="https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet">Markdown Cheat Sheet by Adam Pritchard</a></p>
+
+	</div>
+
+	<script>
+		var docDOM = document.getElementById('example');
+		var docObject = docx.export(docDOM, // required DOM Object
+		{
+			creator: "Creator", // optional String
+			lastModifiedBy: "Last person to modify", // optional String
+			created: new Date(), // optional Date Object
+			modified: new Date() // optional Date Object
+		});
+		var link = document.createElement('a');
+		link.appendChild(document.createTextNode("Download .docx"));
+		link.title = "Download Title";
+		link.download = "FilenameHere.docx";
+		link.href = docObject.href();
+		document.body.insertBefore(link, docDOM);
+	</script>
+</body>
+
+</html>
