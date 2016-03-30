@@ -1,0 +1,14 @@
+{
+  "name": "docx-js",
+  "homepage": "https://github.com/ZerdaH/DOCX.js",
+  "main": "docx.js",
+  "version": "1",
+  "ignore": [],
+  "keywords": [
+    "word",
+    "doc",
+    "docx",
+    "docx-js",
+    "js-docx"
+  ]
+}
