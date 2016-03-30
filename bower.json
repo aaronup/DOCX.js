@@ -10,5 +10,12 @@
     "docx",
     "docx-js",
     "js-docx"
-  ]
+  ],
+  "authors": [
+    {
+      "name": "Stephen Hardy",
+      "url": "https://github.com/stephen-hardy"
+    }
+  ],
+  "license": "Microsoft Office Extensible File License"
 }
