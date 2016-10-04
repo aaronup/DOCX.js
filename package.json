@@ -1,0 +1,26 @@
+{
+    "author": "Stephen Hardy",
+    "bugs": {
+        "url": "https://github.com/aaronup/DOCX.js/issues"
+    },
+    "description": "DOCX.js is a JavaScript library for converting the data in base64 DOCX files into HTML - and back",
+    "homepage": "https://github.com/aaronup/DOCX.js#readme",
+    "keywords": [
+        "word",
+        "doc",
+        "docx",
+        "docx-js",
+        "js-docx"
+    ],
+    "license": "SEE LICENSE IN LICENSE.txt",
+    "main": "docx.js",
+    "name": "docx",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/aaronup/DOCX.js.git"
+    },
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "version": "1.0.0"
+}

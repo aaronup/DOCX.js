@@ -4,7 +4,7 @@
 // https://raw.github.com/stephen-hardy/docx.js/master/LICENSE.txt
 //----------------------------------------------------------
 
-var docx = {
+module.exports = {
 	convertContent: function (input) { // Convert HTML to WordprocessingML, and vice versa
 		var output,
 		inputDoc,
